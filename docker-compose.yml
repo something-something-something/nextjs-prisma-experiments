@@ -19,23 +19,23 @@ services:
                   test: mongosh "mongodb://dbmongoPrimary:27017" --eval "print('hello')"
                   interval: 10s
                   timeout: 10s
-                  retries: 20
+                  retries: 5
             image: mongo:latest
             command: --replSet dbRepl
       dbmongo2:
             healthcheck:
-                  test: mongosh "mongodb://dbmongoPrimary:27017" --eval "print('hello')"
+                  test: mongosh "mongodb://dbmongo2:27017" --eval "print('hello')"
                   interval: 10s
                   timeout: 10s
-                  retries: 20
+                  retries: 5
             image: mongo:latest
             command: --replSet dbRepl
       dbmongo3:
             healthcheck:
-                  test: mongosh "mongodb://dbmongoPrimary:27017" --eval "print('hello')"
+                  test: mongosh "mongodb://dbmongo3:27017" --eval "print('hello')"
                   interval: 10s
                   timeout: 10s
-                  retries: 20
+                  retries: 5
             image: mongo:latest
             command: --replSet dbRepl
       dbmongosh:
