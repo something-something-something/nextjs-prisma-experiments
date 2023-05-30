@@ -1,0 +1,52 @@
+services:
+      nodeweb:
+            build:
+                  context: ./
+                  dockerfile: node.DOCKERFILE
+            volumes:
+                  - ./app:/home/node/webapp/app:rw
+                  - ./prisma:/home/node/webapp/prisma:rw
+                  - ./package.json:/home/node/webapp/package.json:rw
+                  - ./pnpm-lock.yaml:/home/node/webapp/pnpm-lock.yaml:rw
+                  - ./.next:/home/node/webapp/.next
+            ports:
+                  - "3000:3000"
+            depends_on:
+                  dbmongosh:
+                        condition: service_completed_successfully
+      dbmongoPrimary:
+            healthcheck:
+                  test: mongosh "mongodb://dbmongoPrimary:27017" --eval "print('hello')"
+                  interval: 10s
+                  timeout: 10s
+                  retries: 20
+            image: mongo:latest
+            command: --replSet dbRepl
+      dbmongo2:
+            healthcheck:
+                  test: mongosh "mongodb://dbmongoPrimary:27017" --eval "print('hello')"
+                  interval: 10s
+                  timeout: 10s
+                  retries: 20
+            image: mongo:latest
+            command: --replSet dbRepl
+      dbmongo3:
+            healthcheck:
+                  test: mongosh "mongodb://dbmongoPrimary:27017" --eval "print('hello')"
+                  interval: 10s
+                  timeout: 10s
+                  retries: 20
+            image: mongo:latest
+            command: --replSet dbRepl
+      dbmongosh:
+            image: mongo:latest
+            depends_on:
+                  dbmongoPrimary:
+                        condition: service_healthy
+                  dbmongo2:
+                        condition: service_healthy
+                  dbmongo3:
+                        condition: service_healthy
+            volumes:
+                  - ./mongo-setup.js:/var/mongoScripts/mongo-setup.js
+            entrypoint: mongosh "mongodb://dbmongoPrimary:27017" --file /var/mongoScripts/mongo-setup.js
